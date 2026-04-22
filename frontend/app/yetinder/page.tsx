@@ -1,8 +1,9 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { CLIENT_API, MEDIA_BASE, type Yeti } from '../lib/api'
+import { CLIENT_API, type Yeti } from '../lib/api'
 import StarRating from '../ui/star-rating'
+import Avatar from '../ui/avatar'
 
 const GENDER: Record<string, string> = { male: 'Muž', female: 'Žena', unknown: 'Neznámé' }
 
@@ -67,16 +68,8 @@ export default function YetinderPage() {
 
       <div className="bg-zinc-800 rounded-2xl p-8 text-center shadow-xl">
         {/* Avatar */}
-        <div className="w-24 h-24 rounded-full mx-auto mb-4 overflow-hidden bg-zinc-700 flex items-center justify-center border-4 border-zinc-600">
-          {yeti.photo ? (
-            <img
-              src={`${MEDIA_BASE}/uploads/yeti/${yeti.photo}`}
-              alt={yeti.name}
-              className="w-full h-full object-cover"
-            />
-          ) : (
-            <span className="text-5xl select-none">🦣</span>
-          )}
+        <div className="mx-auto mb-4 border-4 border-zinc-600 rounded-full w-fit">
+          <Avatar photo={yeti.photo} name={yeti.name} size="md" />
         </div>
 
         {/* Name & location */}

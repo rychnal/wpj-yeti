@@ -1,5 +1,6 @@
 import { getTopYeti } from './lib/api'
 import Stars from './ui/stars'
+import Avatar from './ui/avatar'
 
 const GENDER: Record<string, string> = { male: 'Muž', female: 'Žena', unknown: 'Neznámé' }
 
@@ -32,6 +33,7 @@ export default async function Page() {
           <thead>
             <tr className="border-b border-zinc-700 text-zinc-400 text-left">
               <th className="px-4 py-3 w-12">#</th>
+              <th className="px-4 py-3 w-10"></th>
               <th className="px-4 py-3">Jméno</th>
               <th className="px-4 py-3">Pohlaví</th>
               <th className="px-4 py-3">Výška</th>
@@ -46,22 +48,25 @@ export default async function Page() {
                 key={yeti.id}
                 className="border-b border-zinc-700/50 hover:bg-zinc-700/30 transition-colors"
               >
-                <td className="px-4 py-3">
+                <td className="px-4 py-2">
                   <RankBadge rank={i + 1} />
                 </td>
-                <td className="px-4 py-3 font-medium">{yeti.name}</td>
-                <td className="px-4 py-3 text-zinc-300">{GENDER[yeti.gender] ?? yeti.gender}</td>
-                <td className="px-4 py-3 text-zinc-300">{yeti.height_cm} cm</td>
-                <td className="px-4 py-3 text-zinc-300">{yeti.weight_kg} kg</td>
-                <td className="px-4 py-3 text-zinc-300">{yeti.location}</td>
-                <td className="px-4 py-3">
+                <td className="px-2 py-2">
+                  <Avatar photo={yeti.photo} name={yeti.name} size="sm" />
+                </td>
+                <td className="px-4 py-2 font-medium">{yeti.name}</td>
+                <td className="px-4 py-2 text-zinc-300">{GENDER[yeti.gender] ?? yeti.gender}</td>
+                <td className="px-4 py-2 text-zinc-300">{yeti.height_cm} cm</td>
+                <td className="px-4 py-2 text-zinc-300">{yeti.weight_kg} kg</td>
+                <td className="px-4 py-2 text-zinc-300">{yeti.location}</td>
+                <td className="px-4 py-2">
                   <Stars score={Number(yeti.avg_rating)} />
                 </td>
               </tr>
             ))}
             {yetis.length === 0 && (
               <tr>
-                <td colSpan={7} className="px-4 py-10 text-center text-zinc-400">
+                <td colSpan={8} className="px-4 py-10 text-center text-zinc-400">
                   Zatím žádní Yeti.{' '}
                   <a href="/add" className="text-blue-400 hover:underline">
                     Přidat prvního!

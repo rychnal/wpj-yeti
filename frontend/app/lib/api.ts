@@ -25,6 +25,7 @@ export type YetiSummary = {
   id: number
   name: string
   location: string
+  photo: string | null
   total_ratings: number
   avg_score: string
 }
@@ -32,9 +33,9 @@ export type YetiSummary = {
 // server-side (internal Docker network)
 const SERVER_API = process.env.API_URL ?? 'http://localhost:8000/api'
 
-// client-side (browser)
+// client-side (browser) — MEDIA_BASE derived so no extra env var needed
 export const CLIENT_API = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000/api'
-export const MEDIA_BASE = process.env.NEXT_PUBLIC_MEDIA_URL ?? 'http://localhost:8000'
+export const MEDIA_BASE = CLIENT_API.replace(/\/api$/, '')
 
 export async function getTopYeti(): Promise<Yeti[]> {
   const res = await fetch(`${SERVER_API}/yeti`, { cache: 'no-store' })

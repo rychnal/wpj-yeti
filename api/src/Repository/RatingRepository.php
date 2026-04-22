@@ -43,6 +43,7 @@ class RatingRepository
                 'y.id',
                 'y.name',
                 'y.location',
+                'y.photo',
                 'COUNT(r.id) AS total_ratings',
                 'COALESCE(ROUND(AVG(r.score), 2), 0) AS avg_score',
             )

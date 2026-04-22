@@ -36,10 +36,14 @@ export default function AddPage() {
         if (photoFile && photoFile.size > 0) {
           const photoFd = new FormData()
           photoFd.append('photo', photoFile)
-          await fetch(`${CLIENT_API}/yeti/${yeti.id}/photo`, {
+          const photoRes = await fetch(`${CLIENT_API}/yeti/${yeti.id}/photo`, {
             method: 'POST',
             body: photoFd,
           })
+          if (!photoRes.ok) {
+            const err = await photoRes.json()
+            return `Yeti byl uložen, ale upload fotky selhal: ${err.error ?? 'Neznámá chyba'}`
+          }
         }
 
         router.push('/')
@@ -145,7 +149,7 @@ export default function AddPage() {
           </div>
         </div>
 
-        {error && (
+        {error && !isPending && (
           <p className="text-red-400 text-sm bg-red-400/10 px-3 py-2 rounded-lg">{error}</p>
         )}
 
