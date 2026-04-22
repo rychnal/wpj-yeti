@@ -1,0 +1,61 @@
+services:
+  php:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: yetinder_php
+    volumes:
+      - ./api:/var/www/api
+    working_dir: /var/www/api
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: "mysql://yeti:yeti@db:3306/yetinder?serverVersion=8.0&charset=utf8mb4"
+      CORS_ALLOW_ORIGIN: "http://localhost:3000"
+    command: symfony server:start --no-tls --port=8000 --allow-all-ip
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - yetinder
+
+  frontend:
+    image: node:22-alpine
+    container_name: yetinder_frontend
+    volumes:
+      - ./frontend:/app
+    working_dir: /app
+    ports:
+      - "3000:3000"
+    environment:
+      NEXT_PUBLIC_API_URL: "http://localhost:8000/api"
+    command: sh -c "npm install && npm run dev"
+    networks:
+      - yetinder
+
+  db:
+    image: mysql:8.0
+    container_name: yetinder_db
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: yetinder
+      MYSQL_USER: yeti
+      MYSQL_PASSWORD: yeti
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - yetinder
+
+volumes:
+  db_data:
+
+networks:
+  yetinder:
+    driver: bridge
