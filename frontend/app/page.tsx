@@ -1,65 +1,77 @@
-import Image from "next/image";
+import { getTopYeti } from './lib/api'
+import Stars from './ui/stars'
 
-export default function Home() {
+const GENDER: Record<string, string> = { male: 'Muž', female: 'Žena', unknown: 'Neznámé' }
+
+function RankBadge({ rank }: { rank: number }) {
+  const styles = [
+    'bg-amber-400 text-zinc-900',
+    'bg-zinc-400 text-zinc-900',
+    'bg-amber-700 text-white',
+  ]
+  if (rank <= 3) {
+    return (
+      <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold ${styles[rank - 1]}`}>
+        {rank}
+      </div>
+    )
+  }
+  return <span className="text-zinc-500 text-sm pl-2">{rank}</span>
+}
+
+export default async function Page() {
+  const yetis = await getTopYeti()
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+    <div>
+      <h1 className="text-2xl font-bold mb-1">Top 10 nejlépe hodnocených Yetů</h1>
+      <p className="text-zinc-400 text-sm mb-6">Seřazeno podle průměrného hodnocení</p>
+
+      <div className="bg-zinc-800 rounded-xl overflow-hidden">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="border-b border-zinc-700 text-zinc-400 text-left">
+              <th className="px-4 py-3 w-12">#</th>
+              <th className="px-4 py-3">Jméno</th>
+              <th className="px-4 py-3">Pohlaví</th>
+              <th className="px-4 py-3">Výška</th>
+              <th className="px-4 py-3">Váha</th>
+              <th className="px-4 py-3">Bydliště</th>
+              <th className="px-4 py-3">Hodnocení</th>
+            </tr>
+          </thead>
+          <tbody>
+            {yetis.map((yeti, i) => (
+              <tr
+                key={yeti.id}
+                className="border-b border-zinc-700/50 hover:bg-zinc-700/30 transition-colors"
+              >
+                <td className="px-4 py-3">
+                  <RankBadge rank={i + 1} />
+                </td>
+                <td className="px-4 py-3 font-medium">{yeti.name}</td>
+                <td className="px-4 py-3 text-zinc-300">{GENDER[yeti.gender] ?? yeti.gender}</td>
+                <td className="px-4 py-3 text-zinc-300">{yeti.height_cm} cm</td>
+                <td className="px-4 py-3 text-zinc-300">{yeti.weight_kg} kg</td>
+                <td className="px-4 py-3 text-zinc-300">{yeti.location}</td>
+                <td className="px-4 py-3">
+                  <Stars score={Number(yeti.avg_rating)} />
+                </td>
+              </tr>
+            ))}
+            {yetis.length === 0 && (
+              <tr>
+                <td colSpan={7} className="px-4 py-10 text-center text-zinc-400">
+                  Zatím žádní Yeti.{' '}
+                  <a href="/add" className="text-blue-400 hover:underline">
+                    Přidat prvního!
+                  </a>
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
     </div>
-  );
+  )
 }
