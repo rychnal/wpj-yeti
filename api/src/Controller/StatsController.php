@@ -23,4 +23,10 @@ class StatsController extends AbstractController
     {
         return $this->json($this->statsService->getSummary());
     }
+
+    #[Route('/user/{id}', name: 'user', methods: ['GET'])]
+    public function userStats(int $id): JsonResponse
+    {
+        return $this->json($this->statsService->getUserStats($id));
+    }
 }

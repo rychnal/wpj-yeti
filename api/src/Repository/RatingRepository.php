@@ -8,10 +8,11 @@ class RatingRepository
 {
     public function __construct(private readonly Connection $connection) {}
 
-    public function insert(int $yetiId, int $score): void
+    public function insert(int $yetiId, int $score, int $userId): void
     {
         $this->connection->insert('rating', [
             'yeti_id'    => $yetiId,
+            'user_id'    => $userId,
             'score'      => $score,
             'created_at' => (new \DateTimeImmutable())->format('Y-m-d H:i:s'),
         ]);
@@ -49,8 +50,28 @@ class RatingRepository
             )
             ->from('yeti', 'y')
             ->leftJoin('y', 'rating', 'r', 'r.yeti_id = y.id')
-            ->groupBy('y.id', 'y.name', 'y.location')
+            ->groupBy('y.id', 'y.name', 'y.location', 'y.photo')
             ->orderBy('avg_score', 'DESC')
+            ->executeQuery()
+            ->fetchAllAssociative();
+    }
+
+    public function getUserStats(int $userId): array
+    {
+        return $this->connection->createQueryBuilder()
+            ->select(
+                'y.id',
+                'y.name',
+                'y.location',
+                'y.photo',
+                'r.score',
+                'r.created_at AS rated_at',
+            )
+            ->from('rating', 'r')
+            ->innerJoin('r', 'yeti', 'y', 'y.id = r.yeti_id')
+            ->where('r.user_id = :userId')
+            ->setParameter('userId', $userId)
+            ->orderBy('r.created_at', 'DESC')
             ->executeQuery()
             ->fetchAllAssociative();
     }

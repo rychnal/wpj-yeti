@@ -13,10 +13,10 @@ class RatingService
         private readonly YetiRepository $yetiRepository,
     ) {}
 
-    public function rate(int $yetiId, int $score): void
+    public function rate(int $yetiId, int $score, int $userId): void
     {
         $this->validateYetiExists($yetiId);
-        $this->ratingRepository->insert($yetiId, $score);
+        $this->ratingRepository->insert($yetiId, $score, $userId);
     }
 
     public function validateYetiExists(int $id): void

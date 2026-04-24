@@ -2,21 +2,25 @@
 
 import { useState, useEffect } from 'react'
 import { CLIENT_API, type Yeti } from '../lib/api'
+import { useAuth } from '../ui/auth-provider'
 import StarRating from '../ui/star-rating'
 import Avatar from '../ui/avatar'
 
 const GENDER: Record<string, string> = { male: 'Muž', female: 'Žena', unknown: 'Neznámé' }
 
 export default function YetinderPage() {
+  const { user } = useAuth()
   const [yeti, setYeti] = useState<Yeti | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [rated, setRated] = useState(false)
+  const [selectedScore, setSelectedScore] = useState(0)
 
   const loadNext = async () => {
     setLoading(true)
     setError(null)
     setRated(false)
+    setSelectedScore(0)
     try {
       const res = await fetch(`${CLIENT_API}/yeti/match`)
       if (!res.ok) throw new Error('Žádný yeti k dispozici.')
@@ -33,10 +37,11 @@ export default function YetinderPage() {
   const handleRate = async (score: number) => {
     if (!yeti || rated) return
     setRated(true)
+    setSelectedScore(score)
     await fetch(`${CLIENT_API}/rating/${yeti.id}/rate`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ score }),
+      body: JSON.stringify({ score, user_id: user?.id ?? null }),
     })
     setTimeout(loadNext, 500)
   }
@@ -64,7 +69,14 @@ export default function YetinderPage() {
 
   return (
     <div className="max-w-md mx-auto">
-      <h1 className="text-2xl font-bold text-center mb-6">Ohodnoť tohoto Yetiho</h1>
+      <h1 className="text-2xl font-bold text-center mb-2">Ohodnoť tohoto Yetiho</h1>
+      {!user && (
+        <p className="text-center text-zinc-500 text-sm mb-4">
+          <a href="/login" className="text-blue-400 hover:underline">Přihlas se</a>
+          {' '}pro možnost hodnotit.
+        </p>
+      )}
+      {user && <p className="text-center text-zinc-500 text-xs mb-4">Hodnotíš jako {user.email}</p>}
 
       <div className="bg-zinc-800 rounded-2xl p-8 text-center shadow-xl">
         {/* Avatar */}
@@ -101,7 +113,7 @@ export default function YetinderPage() {
         <div className="mb-5">
           <p className="text-zinc-400 text-sm mb-3">Ohodnoť hvězdičkami</p>
           <div className="flex justify-center">
-            <StarRating onRate={handleRate} disabled={rated} />
+            <StarRating onRate={handleRate} disabled={!user || rated} selected={selectedScore} />
           </div>
           {rated && <p className="text-amber-400 text-sm mt-2">Hodnocení uloženo ✓</p>}
         </div>

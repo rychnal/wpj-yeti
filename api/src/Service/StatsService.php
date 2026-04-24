@@ -22,4 +22,9 @@ class StatsService
     {
         return $this->ratingRepository->getMonthlyAggregates();
     }
+
+    public function getUserStats(int $userId): array
+    {
+        return $this->ratingRepository->getUserStats($userId);
+    }
 }

@@ -2,8 +2,8 @@
 
 namespace App\Controller;
 
-use App\DTO\RateYetiDTO;
-use App\Service\RatingService;
+use App\DTO\LoginDTO;
+use App\Service\UserService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -12,21 +12,21 @@ use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
-#[Route('/api/rating', name: 'rating_')]
-class RatingController extends AbstractController
+#[Route('/api/auth', name: 'auth_')]
+class UserController extends AbstractController
 {
     public function __construct(
-        private readonly RatingService $ratingService,
+        private readonly UserService $userService,
         private readonly ValidatorInterface $validator,
     ) {}
 
-    #[Route('/{id}/rate', name: 'rate', methods: ['POST'])]
-    public function rate(int $id, Request $request): JsonResponse
+    #[Route('/login', name: 'login', methods: ['POST'])]
+    public function login(Request $request): JsonResponse
     {
         $data = json_decode($request->getContent(), true) ?? [];
 
-        $dto = new RateYetiDTO();
-        $dto->score = (int) ($data['score'] ?? 0);
+        $dto        = new LoginDTO();
+        $dto->email = trim((string) ($data['email'] ?? ''));
 
         $errors = $this->validator->validate($dto);
         if (count($errors) > 0) {
@@ -37,19 +37,12 @@ class RatingController extends AbstractController
             throw new UnprocessableEntityHttpException(json_encode($messages));
         }
 
-        if (empty($data['user_id'])) {
-            throw new UnprocessableEntityHttpException('user_id is required.');
-        }
-        $this->ratingService->rate($id, $dto->score, (int) $data['user_id']);
-
-        return $this->json(null, Response::HTTP_NO_CONTENT);
+        return $this->json($this->userService->loginOrRegister($dto->email), Response::HTTP_OK);
     }
 
-    #[Route('/{id}/skip', name: 'skip', methods: ['POST'])]
-    public function skip(int $id): JsonResponse
+    #[Route('/me/{id}', name: 'me', methods: ['GET'])]
+    public function me(int $id): JsonResponse
     {
-        $this->ratingService->skip($id);
-
-        return $this->json(null, Response::HTTP_NO_CONTENT);
+        return $this->json($this->userService->findById($id));
     }
 }
