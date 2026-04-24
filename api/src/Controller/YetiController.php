@@ -30,10 +30,32 @@ class YetiController extends AbstractController
         return $this->json($this->yetiService->getTopRated());
     }
 
-    #[Route('/match', name: 'match', methods: ['GET'])]
-    public function matchYeti(): JsonResponse
+    #[Route('/match/batch', name: 'match_batch', methods: ['GET'])]
+    public function matchBatch(Request $request): JsonResponse
     {
-        return $this->json($this->yetiService->getRandomMatch());
+        $userId = $request->query->getInt('user_id');
+        if (!$userId) {
+            return $this->json([]);
+        }
+
+        $rawExcludeIds = $request->query->get('exclude_ids', '');
+        $excludeIds = $rawExcludeIds !== ''
+            ? array_values(array_filter(array_map('intval', explode(',', $rawExcludeIds)), fn(int $id) => $id > 0))
+            : [];
+
+        return $this->json($this->yetiService->getMatchBatchForUser($userId, 10, $excludeIds));
+    }
+
+    #[Route('/match', name: 'match', methods: ['GET'])]
+    public function matchYeti(Request $request): JsonResponse
+    {
+        $userId = $request->query->getInt('user_id');
+
+        $yeti = $userId
+            ? $this->yetiService->getMatchForUser($userId)
+            : $this->yetiService->getRandomMatch();
+
+        return $this->json($yeti);
     }
 
     #[Route('', name: 'create', methods: ['POST'])]

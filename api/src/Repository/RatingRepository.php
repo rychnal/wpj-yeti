@@ -8,6 +8,19 @@ class RatingRepository
 {
     public function __construct(private readonly Connection $connection) {}
 
+    public function hasUserRatedYeti(int $userId, int $yetiId): bool
+    {
+        return (bool) $this->connection->createQueryBuilder()
+            ->select('COUNT(id)')
+            ->from('rating')
+            ->where('user_id = :userId')
+            ->andWhere('yeti_id = :yetiId')
+            ->setParameter('userId', $userId)
+            ->setParameter('yetiId', $yetiId)
+            ->executeQuery()
+            ->fetchOne();
+    }
+
     public function insert(int $yetiId, int $score, int $userId): void
     {
         $this->connection->insert('rating', [

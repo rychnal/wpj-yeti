@@ -4,6 +4,7 @@ namespace App\Service;
 
 use App\Repository\RatingRepository;
 use App\Repository\YetiRepository;
+use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class RatingService
@@ -16,6 +17,9 @@ class RatingService
     public function rate(int $yetiId, int $score, int $userId): void
     {
         $this->validateYetiExists($yetiId);
+        if ($this->ratingRepository->hasUserRatedYeti($userId, $yetiId)) {
+            throw new ConflictHttpException("Yeti #{$yetiId} jsi již ohodnotil.");
+        }
         $this->ratingRepository->insert($yetiId, $score, $userId);
     }
 

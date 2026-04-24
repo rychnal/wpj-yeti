@@ -22,6 +22,17 @@ class YetiService
             ?? throw new NotFoundHttpException('No yeti available.');
     }
 
+    public function getMatchForUser(int $userId): array
+    {
+        return $this->yetiRepository->findNextUnratedByUser($userId)
+            ?? throw new NotFoundHttpException('Všechny yeti jsou již ohodnoceni.');
+    }
+
+    public function getMatchBatchForUser(int $userId, int $limit, array $excludeIds): array
+    {
+        return $this->yetiRepository->findUnratedByUser($userId, $limit, $excludeIds);
+    }
+
     public function create(CreateYetiDTO $dto): array
     {
         $id = $this->yetiRepository->insert([
