@@ -50,9 +50,49 @@ class RatingRepository
             ->fetchAllAssociative();
     }
 
-    public function getSummary(): array
+    public function getAggregatesByPeriod(string $period): array
     {
-        return $this->connection->createQueryBuilder()
+        return match($period) {
+            'day'   => $this->connection->executeQuery(
+                'SELECT HOUR(created_at) AS hour,
+                        COUNT(id) AS total_ratings,
+                        ROUND(AVG(score), 2) AS avg_score,
+                        MIN(score) AS min_score, MAX(score) AS max_score
+                 FROM rating
+                 WHERE created_at >= DATE_SUB(NOW(), INTERVAL 1 DAY)
+                 GROUP BY HOUR(created_at)
+                 ORDER BY hour ASC'
+            )->fetchAllAssociative(),
+            'month' => $this->connection->executeQuery(
+                'SELECT YEAR(created_at) AS year, MONTH(created_at) AS month, DAY(created_at) AS day,
+                        COUNT(id) AS total_ratings,
+                        ROUND(AVG(score), 2) AS avg_score,
+                        MIN(score) AS min_score, MAX(score) AS max_score
+                 FROM rating
+                 WHERE created_at >= DATE_SUB(NOW(), INTERVAL 1 MONTH)
+                 GROUP BY YEAR(created_at), MONTH(created_at), DAY(created_at)
+                 ORDER BY year ASC, month ASC, day ASC'
+            )->fetchAllAssociative(),
+            default => $this->connection->executeQuery(
+                'SELECT YEAR(created_at) AS year, MONTH(created_at) AS month,
+                        COUNT(id) AS total_ratings,
+                        ROUND(AVG(score), 2) AS avg_score,
+                        MIN(score) AS min_score, MAX(score) AS max_score
+                 FROM rating
+                 WHERE created_at >= DATE_SUB(NOW(), INTERVAL 1 YEAR)
+                 GROUP BY YEAR(created_at), MONTH(created_at)
+                 ORDER BY year ASC, month ASC'
+            )->fetchAllAssociative(),
+        };
+    }
+
+    public function getSummary(?\DateTimeImmutable $since = null): array
+    {
+        $joinCondition = $since !== null
+            ? 'r.yeti_id = y.id AND r.created_at >= :since'
+            : 'r.yeti_id = y.id';
+
+        $qb = $this->connection->createQueryBuilder()
             ->select(
                 'y.id',
                 'y.name',
@@ -62,11 +102,15 @@ class RatingRepository
                 'COALESCE(ROUND(AVG(r.score), 2), 0) AS avg_score',
             )
             ->from('yeti', 'y')
-            ->leftJoin('y', 'rating', 'r', 'r.yeti_id = y.id')
+            ->leftJoin('y', 'rating', 'r', $joinCondition)
             ->groupBy('y.id', 'y.name', 'y.location', 'y.photo')
-            ->orderBy('avg_score', 'DESC')
-            ->executeQuery()
-            ->fetchAllAssociative();
+            ->orderBy('avg_score', 'DESC');
+
+        if ($since !== null) {
+            $qb->setParameter('since', $since->format('Y-m-d H:i:s'));
+        }
+
+        return $qb->executeQuery()->fetchAllAssociative();
     }
 
     public function getUserStats(int $userId): array

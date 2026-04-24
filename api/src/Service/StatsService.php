@@ -13,14 +13,25 @@ class StatsService
         return $this->ratingRepository->getMonthlyAggregates();
     }
 
-    public function getSummary(): array
+    public function getChartData(string $period): array
     {
-        return $this->ratingRepository->getSummary();
+        return $this->ratingRepository->getAggregatesByPeriod($period);
     }
 
-    public function getTopByPeriod(string $period): array
+    public function getSummary(?\DateTimeImmutable $since = null): array
     {
-        return $this->ratingRepository->getMonthlyAggregates();
+        return $this->ratingRepository->getSummary($since);
+    }
+
+    public function getSummaryByPeriod(string $period): array
+    {
+        $since = match($period) {
+            'day'   => new \DateTimeImmutable('-1 day'),
+            'month' => new \DateTimeImmutable('-1 month'),
+            default => new \DateTimeImmutable('-1 year'),
+        };
+
+        return $this->ratingRepository->getSummary($since);
     }
 
     public function getUserStats(int $userId): array
