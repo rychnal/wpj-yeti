@@ -28,7 +28,6 @@ seed:
 ## Nainstalovat závislosti (po git clone)
 install:
 	docker compose exec php composer install
-	docker compose exec frontend npm install
 
 ## Symfony console zkratka (použití: make console CMD="cache:clear")
 console:
