@@ -44,7 +44,7 @@ export default async function StatsPage(props: { searchParams: Promise<{ period?
         {[
           { label: 'celkem hodnocení', value: totalRatings },
           { label: 'průměrné skóre', value: avgScore },
-          { label: 'počet Yetů', value: yetis.length },
+          { label: 'počet Yetů', value: summary.length },
         ].map((card) => (
           <div key={card.label} className="bg-zinc-800 rounded-xl p-5">
             <div className="text-3xl font-bold mb-1">{card.value}</div>
