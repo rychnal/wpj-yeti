@@ -23,6 +23,7 @@ shell-frontend:
 
 ## Nahrát seed data do databáze
 seed:
+	docker compose exec -T db mysql -u yeti -pyeti yetinder < db/schema.sql
 	docker compose exec -T db mysql -u yeti -pyeti yetinder < db/seed.sql
 
 ## Nainstalovat závislosti (po git clone)
