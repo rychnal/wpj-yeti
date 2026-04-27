@@ -68,7 +68,8 @@ export default function MeStatsPage() {
         <div className="px-4 py-3 border-b border-zinc-700">
           <h2 className="text-lg font-semibold">Má hodnocení</h2>
         </div>
-        <table className="w-full text-sm">
+        <div className="overflow-x-auto">
+        <table className="w-full min-w-[450px] text-sm">
           <thead>
             <tr className="border-b border-zinc-700 text-zinc-400 text-left">
               <th className="px-4 py-3 w-10"></th>
@@ -106,6 +107,7 @@ export default function MeStatsPage() {
             )}
           </tbody>
         </table>
+        </div>
       </div>
     </div>
   )

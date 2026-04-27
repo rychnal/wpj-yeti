@@ -29,7 +29,8 @@ export default async function Page() {
       <p className="text-zinc-400 text-sm mb-6">Seřazeno podle průměrného hodnocení</p>
 
       <div className="bg-zinc-800 rounded-xl overflow-hidden">
-        <table className="w-full text-sm">
+        <div className="overflow-x-auto">
+        <table className="w-full min-w-[450px] text-sm">
           <thead>
             <tr className="border-b border-zinc-700 text-zinc-400 text-left">
               <th className="px-4 py-3 w-12">#</th>
@@ -76,6 +77,7 @@ export default async function Page() {
             )}
           </tbody>
         </table>
+        </div>
       </div>
     </div>
   )
