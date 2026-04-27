@@ -1,4 +1,4 @@
-.PHONY: build up down shell-php shell-frontend install create-api create-frontend console logs
+.PHONY: build up down shell-php shell-frontend install seed create-api create-frontend console logs
 
 ## Buildnout PHP image
 build:
@@ -20,6 +20,10 @@ shell-php:
 shell-frontend:
 	docker compose exec frontend sh
 
+
+## Nahrát seed data do databáze
+seed:
+	docker compose exec -T db mysql -u yeti -pyeti yetinder < db/seed.sql
 
 ## Nainstalovat závislosti (po git clone)
 install:
