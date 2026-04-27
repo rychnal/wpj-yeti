@@ -1,6 +1,6 @@
 # Yetinder
 
-Symfony 8 REST API + Next.js 15 frontend, databáze MySQL 8.
+Symfony 8 REST API + Next.js 16 frontend, databáze MySQL 8.
 
 ---
 

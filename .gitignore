@@ -50,3 +50,9 @@
 
 # Embedded web-server pid file
 /.web-server-pid
+
+# AI assistant files
+CLAUDE.md
+claude.md
+AGENTS.md
+agents.md
